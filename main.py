@@ -1,42 +1,56 @@
-import cv2
-import dlib
-import face_recognition
-from util.reconhecimento import carregar_banco, verificar_rosto, codificar_rosto
-import numpy as np
+from controller.cadastro import cadastrar_aluno
+from controller.camera import iniciar_reconhecimento
+
+def main(): # type: ignore
+    print("=== SISTEMA DE RECONHECIMENTO FACIAL ===")
+    print("1 - Cadastrar novo aluno")
+    print("2 - Iniciar reconhecimento facial")
+    print("0 - Sair")
+
+    while True:
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == "1":
+            nome = input("Digite o nome do aluno: ").strip()
+            if nome:
+                cadastrar_aluno(nome)
+            else:
+                print("Nome inválido.")
+        elif opcao == "2":
+            iniciar_reconhecimento()
+        elif opcao == "0":
+            print("Saindo...")
+            break
+        else:
+            print("Opção inválida, tente novamente.")
+
+if __name__ == "__main__":
+    main()
+from controller.cadastro import cadastrar_aluno
+from controller.camera import iniciar_reconhecimento
 
 def main():
-    cam = cv2.VideoCapture(0)
-    df = carregar_banco()
+    print("=== SISTEMA DE RECONHECIMENTO FACIAL ===")
+    print("1 - Cadastrar novo aluno")
+    print("2 - Iniciar reconhecimento facial")
+    print("0 - Sair")
 
-    print("Iniciando reconhecimento facial...")
     while True:
-        ret, frame = cam.read()
-        if not ret:
-            break
-        
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        faces_loc = face_recognition.face_locations(rgb_frame)
-        encodings = face_recognition.face_encodings(rgb_frame, faces_loc)
+        opcao = input("Escolha uma opção: ")
 
-        for (top, right, bottom, left), face_encoding in zip(faces_loc, encodings):
-            match = verificar_rosto(face_encoding, df)
-            
-            if match is not None:
-                nome = match["nome"]
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-                cv2.putText(frame, f"Aluno: {nome}", (left, top - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        if opcao == "1":
+            nome = input("Digite o nome do aluno: ").strip()
+            if nome:
+                cadastrar_aluno(nome)
             else:
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-                cv2.putText(frame, "Aluno não cadastrado", (left, top - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-
-        cv2.imshow("Reconhecimento Facial", frame)
-        if cv2.waitKey(1) == 27:  # ESC
+                print("Nome inválido.")
+        elif opcao == "2":
+            iniciar_reconhecimento()
+        elif opcao == "0":
+            print("Saindo...")
             break
-
-    cam.release()
-    cv2.destroyAllWindows()
+        else:
+            print("Opção inválida, tente novamente.")
 
 if __name__ == "__main__":
     main()
