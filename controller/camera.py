@@ -4,28 +4,37 @@ import face_recognition
 from model.reconhecimento import carregar_banco
 
 def iniciar_reconhecimento():
-    df = carregar_banco()
-    if df.empty:
+    alunos = carregar_banco()  # Agora retorna uma lista de dicionários
+
+    if not alunos:  # Lista vazia
         print("Nenhum aluno cadastrado.")
         return
 
     encodings_cadastrados = []
     nomes = []
 
-    for _, row in df.iterrows():
+    # Percorre os alunos salvos no Mongo
+    for aluno in alunos:
         try:
-            enc = np.fromstring(row["encoding"].strip("[]"), sep=',')
+            # O campo 'encoding' agora é uma lista salva no Mongo
+            enc = np.array(aluno["encoding"], dtype=np.float64)
             encodings_cadastrados.append(enc)
-            nomes.append(row["nome"])
-        except Exception:
+            nomes.append(aluno["nome"])
+        except Exception as e:
+            print(f"Erro ao carregar aluno {aluno.get('nome', 'desconhecido')}: {e}")
             continue
 
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    if not cam.isOpened():
+        print("Erro ao abrir a câmera.")
+        return
+
     print("Iniciando reconhecimento facial. Pressione ESC para sair.")
 
     while True:
         ret, frame = cam.read()
         if not ret:
+            print("Erro ao capturar imagem.")
             break
 
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
