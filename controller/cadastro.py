@@ -1,12 +1,8 @@
 import cv2
-import os
 import numpy as np
-import pandas as pd
-from model.reconhecimento import carregar_banco, salvar_banco
-from controller.geraId import gerar_id
 import face_recognition
-
-DB_PATH = "model/database/alunos.csv"
+from model.reconhecimento import carregar_banco, salvar_aluno
+from controller.geraId import gerar_id
 
 def codificar_rosto(frame):
     """Codifica o rosto capturado."""
@@ -17,9 +13,6 @@ def codificar_rosto(frame):
     return None
 
 def cadastrar_aluno(nome):
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    df = carregar_banco()
-
     cam = cv2.VideoCapture(0)
     if not cam.isOpened():
         print("Erro ao abrir a câmera.")
@@ -40,13 +33,16 @@ def cadastrar_aluno(nome):
             aluno_id = gerar_id()
             encoding = codificar_rosto(frame)
             if encoding is not None:
-                new_row = pd.DataFrame([{
+                # Converte o array NumPy para lista (MongoDB não armazena np.array direto)
+                encoding_list = encoding.tolist()
+
+                aluno = {
                     "id": aluno_id,
                     "nome": nome,
-                    "encoding": np.array2string(encoding, separator=',')
-                }])
-                df = pd.concat([df, new_row], ignore_index=True)
-                salvar_banco(df)
+                    "encoding": encoding_list
+                }
+
+                salvar_aluno(aluno)
                 print(f"✅ Aluno '{nome}' cadastrado com ID {aluno_id}.")
             else:
                 print("Nenhum rosto detectado. Tente novamente.")
