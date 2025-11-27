@@ -1,9 +1,9 @@
 from pymongo import MongoClient
 
 # Configurações do MongoDB
-MONGO_URI = "mongodb+srv://marley:ArrozComCarne999@detectface.clwrmeh.mongodb.net/?appName=DetectFace"  # ajuste se precisar
-DB_NAME = "detectface"
-COLLECTION_NAME = "faces"
+MONGO_URI = "uri"  # ajuste se precisar
+DB_NAME = "db_name"
+COLLECTION_NAME = "collection_face"
 
 # Conexão com o banco
 client = MongoClient(MONGO_URI)
